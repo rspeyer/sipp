@@ -47,6 +47,11 @@
 
 #define SIPP_ENDL "\r\n"
 
+#ifdef RTP_STREAM
+double last_rtpstream_rate_out= 0;
+double last_rtpstream_rate_in= 0;
+#endif
+
 extern void print_stats_in_file(FILE * f);
 
 bool do_hide = true;
@@ -261,7 +266,7 @@ void print_statistics(int last)
         print_bottom_line(stdout,last);
         if (!last && screen_last_error[0]) {
             char *errstart = screen_last_error;
-            int colonsleft = 4;/* We want to skip the time. */
+            int colonsleft = 3;/* We want to skip the time. */
             while (*errstart && colonsleft) {
                 if (*errstart == ':') {
                     colonsleft--;
@@ -437,6 +442,40 @@ void print_stats_in_file(FILE * f)
         rtp_bytes_pcap = 0;
         rtp2_bytes_pcap = 0;
     }
+#endif
+#ifdef RTP_STREAM
+  /* if we have rtp stream thread running */
+  if (rtpstream_numthreads) {
+    unsigned long TempBytes;
+    unsigned long last_tick= clock_tick;
+    /* Saved clock_tick to last_tick and use that in calcs since clock tick */
+    /* can change during calculations.                                      */
+    if (last_tick-last_report_time) {
+      TempBytes= rtpstream_bytes_out;
+      /* Calculate integer and fraction parts of rtp bandwidth; this value
+       * will be saved and reused in the case where last_tick==last_report_time
+       */
+      last_rtpstream_rate_out= ((double)TempBytes)/(last_tick-last_report_time);
+      /* Potential race condition betwen multiple threads updating the 
+       * rtpstream_bytes value. We subtract the saved TempBytes value
+       * rather than setting it to zero to minimise the chances of missing
+       * an update to rtpstream_bytes [update between printing stats and
+       * zeroing the counter]. Ideally we would atomically subtract
+       * TempBytes from rtpstream_bytes.
+       */
+      rtpstream_bytes_out-= TempBytes;
+      TempBytes= rtpstream_bytes_in;
+      last_rtpstream_rate_in= ((double)TempBytes)/(last_tick-last_report_time);
+      rtpstream_bytes_in-= TempBytes;
+    }
+    sprintf(temp_str, "%lu Total RTP pckts sent",rtpstream_pckts);
+    fprintf(f,"  %-38s %.3f kB/s RTP OUT" SIPP_ENDL,
+              temp_str,last_rtpstream_rate_out);
+
+    sprintf(temp_str, "%d RTP sending threads active",rtpstream_numthreads);
+    fprintf(f,"  %-38s %.3f kB/s RTP IN" SIPP_ENDL,
+              temp_str,last_rtpstream_rate_in);
+  }
 #endif
 
     /* 5th line, RTP echo statistics */
@@ -753,6 +792,30 @@ void print_count_file(FILE *f, int header)
             ERROR("Unknown count file message type:");
         }
     }
+    fprintf(f, "\n");
+    fflush(f);
+}
+
+void print_error_codes_file(FILE *f)
+{
+    if (!main_scenario || !main_scenario->stats) {
+        return;
+    }
+
+    // Print time and elapsed time to file
+    struct timeval currentTime, startTime;
+    GET_TIME(&currentTime);
+    main_scenario->stats->getStartTime(&startTime);
+    unsigned long globalElapsedTime = CStat::computeDiffTimeInMs (&currentTime, &startTime);
+    fprintf(f, "%s%s", CStat::formatTime(&currentTime), stat_delimiter);
+    fprintf(f, "%s%s", CStat::msToHHMMSSus(globalElapsedTime), stat_delimiter);
+
+    // Print comma-separated list of all error codes seen since the last time this function was called
+    for (; main_scenario->stats->error_codes.size() != 0;) {
+	    fprintf(f, "%d,", main_scenario->stats->error_codes[main_scenario->stats->error_codes.size() -1]);
+	    main_scenario->stats->error_codes.pop_back();
+    }
+
     fprintf(f, "\n");
     fflush(f);
 }
