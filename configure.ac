@@ -1,16 +1,16 @@
 # ======================== initialization ===============================
 
-AC_INIT([SIPp], [3.3], [sipp-users@lists.sourceforge.net], [sipp])
+AC_INIT([SIPp], [3.4.1], [sipp-users@lists.sourceforge.net], [sipp])
 
 AC_CANONICAL_TARGET
 
-AC_CONFIG_SRCDIR([sipp.cpp])
-AC_CONFIG_HEADERS([config.h])
-AM_INIT_AUTOMAKE([foreign])
+AC_CONFIG_SRCDIR([src/sipp.cpp])
+AC_CONFIG_HEADERS([include/config.h])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 AC_ARG_WITH([openssl],AC_HELP_STRING([--with-openssl], [build with OpenSSL support]), [openssl="$withval"],[openssl="no"])
 AC_ARG_WITH([pcap],AC_HELP_STRING([--with-pcap], [build with pcap support]), [pcap="$withval"],[pcap="no"])
-AC_ARG_WITH([rtpstream],AC_HELP_STRING([--with-rtpstream], [build with RTP streaming support]), [rtp="$withval"],[rtp="no"])
+AC_ARG_WITH([rtpstream],AC_HELP_STRING([--with-rtpstream], [build with RTP streaming support]), [rtp="$withval"],[rtp="yes"])
 AC_ARG_WITH([sctp],AC_HELP_STRING([--with-sctp], [build with SCTP support]), [sctp="$withval"],[sctp="no"])
 AC_ARG_WITH([gsl],AC_HELP_STRING([--with-gsl], [build with GSL (GNU Scientific Library) support]), [gsl="$withval"],[gsl="no"])
 
@@ -161,6 +161,13 @@ fi
 # For Makefile.am
 AM_CONDITIONAL(HAVE_GSL, test "$gsl" = "yes")
 
+AX_HAVE_EPOLL([AX_CONFIG_FEATURE_ENABLE(epoll)],
+    [AX_CONFIG_FEATURE_DISABLE(epoll)])
+AX_CONFIG_FEATURE([epoll], [This platform supports epoll(7)],
+    [HAVE_EPOLL], [This platform supports epoll(7).],
+    [epoll="yes"], [epoll="no"])
+
+AM_CONDITIONAL(HAVE_EPOLL, test "$epoll" = "yes")
 # ==================== checks for header files ==========================
 
 AC_FUNC_ALLOCA
