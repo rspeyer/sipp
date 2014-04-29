@@ -2145,8 +2145,6 @@ char* call::createSendingMessage(SendingMessage *src, int P_index, char *msg_buf
                 } else {
                     (_RCAST(struct sockaddr_in *, &(play_args_v.from)))->sin_port = port;
                 }
-            } else {
-                ERROR("media_port keyword with no audio or video on the current line (%s)", begin);
             }
 #endif
             dest += sprintf(dest, "%u", port);
