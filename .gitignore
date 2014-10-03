@@ -20,3 +20,8 @@ stamp-h.in
 *.rej
 *.patch
 *.dirstamp
+aclocal.m4
+config.guess
+config.sub
+configure
+include/config.h.in
