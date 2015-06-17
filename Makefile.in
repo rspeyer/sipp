@@ -126,7 +126,7 @@ am__sipp_SOURCES_DIST = src/actions.cpp src/auth.cpp src/comp.c \
 	src/sslinit.c src/sslthreadsafe.c include/prepare_pcap.h \
 	include/send_packets.h src/prepare_pcap.c src/send_packets.c \
 	src/rtpstream.cpp include/rtpstream.hpp src/sipp.cpp \
-	include/sipp.hpp
+	src/switch_stun.c include/switch_stun.h include/sipp.hpp
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 =
 @HAVE_OPENSSL_TRUE@am__objects_2 = $(am__objects_1) \
@@ -152,7 +152,8 @@ am__objects_5 = src/sipp-actions.$(OBJEXT) src/sipp-auth.$(OBJEXT) \
 	src/sipp-watchdog.$(OBJEXT) src/sipp-xp_parser.$(OBJEXT) \
 	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
 	$(am__objects_4)
-am_sipp_OBJECTS = $(am__objects_5) src/sipp-sipp.$(OBJEXT)
+am_sipp_OBJECTS = $(am__objects_5) src/sipp-sipp.$(OBJEXT) \
+	src/sipp-switch_stun.$(OBJEXT)
 sipp_OBJECTS = $(am_sipp_OBJECTS)
 sipp_DEPENDENCIES = @LIBOBJS@
 sipp_LINK = $(CXXLD) $(sipp_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
@@ -695,6 +696,8 @@ common_SOURCES = src/actions.cpp \
 
 sipp_SOURCES = $(common_SOURCES) \
 	       src/sipp.cpp \
+	       src/switch_stun.c \
+	       include/switch_stun.h \
 	       include/sipp.hpp
 
 sipp_CFLAGS = $(AM_CFLAGS) @GSL_CFLAGS@
@@ -872,6 +875,8 @@ src/sipp-rtpstream.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/sipp-sipp.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/sipp-switch_stun.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 
 sipp$(EXEEXT): $(sipp_OBJECTS) $(sipp_DEPENDENCIES) $(EXTRA_sipp_DEPENDENCIES) 
 	@rm -f sipp$(EXEEXT)
@@ -979,6 +984,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-sslthreadsafe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-stat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-strings.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-switch_stun.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-task.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-variables.Po@am__quote@
@@ -1158,6 +1164,20 @@ src/sipp-send_packets.obj: src/send_packets.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/send_packets.c' object='src/sipp-send_packets.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -c -o src/sipp-send_packets.obj `if test -f 'src/send_packets.c'; then $(CYGPATH_W) 'src/send_packets.c'; else $(CYGPATH_W) '$(srcdir)/src/send_packets.c'; fi`
+
+src/sipp-switch_stun.o: src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -MT src/sipp-switch_stun.o -MD -MP -MF src/$(DEPDIR)/sipp-switch_stun.Tpo -c -o src/sipp-switch_stun.o `test -f 'src/switch_stun.c' || echo '$(srcdir)/'`src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/sipp-switch_stun.Tpo src/$(DEPDIR)/sipp-switch_stun.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/switch_stun.c' object='src/sipp-switch_stun.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -c -o src/sipp-switch_stun.o `test -f 'src/switch_stun.c' || echo '$(srcdir)/'`src/switch_stun.c
+
+src/sipp-switch_stun.obj: src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -MT src/sipp-switch_stun.obj -MD -MP -MF src/$(DEPDIR)/sipp-switch_stun.Tpo -c -o src/sipp-switch_stun.obj `if test -f 'src/switch_stun.c'; then $(CYGPATH_W) 'src/switch_stun.c'; else $(CYGPATH_W) '$(srcdir)/src/switch_stun.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/sipp-switch_stun.Tpo src/$(DEPDIR)/sipp-switch_stun.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/switch_stun.c' object='src/sipp-switch_stun.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -c -o src/sipp-switch_stun.obj `if test -f 'src/switch_stun.c'; then $(CYGPATH_W) 'src/switch_stun.c'; else $(CYGPATH_W) '$(srcdir)/src/switch_stun.c'; fi`
 
 src/sipp_unittest-comp.o: src/comp.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_unittest_CFLAGS) $(CFLAGS) -MT src/sipp_unittest-comp.o -MD -MP -MF src/$(DEPDIR)/sipp_unittest-comp.Tpo -c -o src/sipp_unittest-comp.o `test -f 'src/comp.c' || echo '$(srcdir)/'`src/comp.c
