@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with thi
 This is the SIPp package. Please refer to the [webpage](http://sipp.sourceforge.net/) for details and documentation.
 
 Normally, you should be able to build SIPp by just typing "./configure
---with-pcap --with-sctp; make" in the current directory. Then "sipp
+--with-pcap --with-sctp --with-openssl; make" in the current directory. Then "sipp
 -h" will give you access to the online help.
 
 Some users have experienced problems with the pre-built autoconf-generated 'configure' file. There are two solutions:
