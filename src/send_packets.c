@@ -254,6 +254,117 @@ int send_packets (play_args_t * play_args)
     return 0;
 }
 
+int send_packets_tcp (play_args_t * play_args)
+{
+    int ret, sock, port_diff;
+    pcap_pkt *pkt_index, *pkt_max;
+    struct timeval didsleep = { 0, 0 };
+    struct timeval start = { 0, 0 };
+    struct timeval last = { 0, 0 };
+    pcap_pkts *pkts = play_args->pcap;
+    /* to and from are pointers in case play_args (call sticky) gets modified! */
+    struct sockaddr_storage *to = &(play_args->to);
+    struct sockaddr_storage *from = &(play_args->from);
+    struct udphdr *udp;
+    struct sockaddr_in6 to6, from6;
+    char buffer[PCAP_MAXPACKET];
+    int temp_sum;
+    int len;
+
+#ifndef MSG_DONTWAIT
+    int fd_flags;
+#endif
+
+    if (media_ip_is_ipv6) {
+        sock = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
+        if (sock < 0) {
+            ERROR("Can't create IPv6 socket (need to run as root?): %s", strerror(errno));
+        }
+        len = sizeof(struct sockaddr_in6);
+        ((struct sockaddr_in6 *)(void *) to )->sin6_port = htons(8443);
+    } else {
+        sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+        len = sizeof(struct sockaddr_in);
+        ((struct sockaddr_in *)(void *) to )->sin_port = htons(8443);
+        if (sock < 0) {
+            ERROR("Can't create IPv4 socket (need to run as root?): %s", strerror(errno));
+            return ret;
+        }
+    }
+
+    if (ret = connect(sock, (const struct sockaddr *)(void *)to, len) < 0) {
+        ERROR("Can't connect TCP socket");
+        return ret;
+    }
+
+#ifndef MSG_DONTWAIT
+    fd_flags = fcntl(sock, F_GETFL , NULL);
+    fd_flags |= O_NONBLOCK;
+    fcntl(sock, F_SETFL , fd_flags);
+#endif
+    udp = (struct udphdr *)buffer;
+
+    pkt_index = pkts->pkts;
+    pkt_max = pkts->max;
+
+    if (media_ip_is_ipv6) {
+        memset(&to6, 0, sizeof(to6));
+        memset(&from6, 0, sizeof(from6));
+        to6.sin6_family = AF_INET6;
+        from6.sin6_family = AF_INET6;
+        memcpy(&(to6.sin6_addr.s6_addr), &(((struct sockaddr_in6 *)(void *) to)->sin6_addr.s6_addr), sizeof(to6.sin6_addr.s6_addr));
+        memcpy(&(from6.sin6_addr.s6_addr), &(((struct sockaddr_in6 *)(void *) from)->sin6_addr.s6_addr), sizeof(from6.sin6_addr.s6_addr));
+    }
+
+
+    /* Ensure the sender socket is closed when the thread exits - this
+     * allows the thread to be cancelled cleanly.
+     */
+    pthread_cleanup_push(send_packets_cleanup, ((void *) &sock));
+
+
+    while (pkt_index < pkt_max) {
+        void * data = buffer + sizeof(*udp) - 2;
+        uint16_t payload_len = htons(pkt_index->pktlen - sizeof(*udp));
+        size_t data_len = pkt_index->pktlen - sizeof(*udp) + 2;
+
+        memcpy(udp, pkt_index->data, pkt_index->pktlen);
+
+        do_sleep ((struct timeval *) &pkt_index->ts, &last, &didsleep,
+                  &start);
+
+        memcpy(data, &payload_len, 2);
+
+#ifdef MSG_DONTWAIT
+        if (!media_ip_is_ipv6) {
+          ret = send(sock, data, data_len, MSG_DONTWAIT);
+        } else {
+          ret = send(sock, data, data_len, MSG_DONTWAIT);
+        }
+#else
+        if (!media_ip_is_ipv6) {
+          ret = send(sock, data, data_len, 0);
+        } else {
+          ret = send(sock, data, data_len, 0);
+        }
+#endif
+        if (ret < 0) {
+            close(sock);
+            WARNING("send_packets.c: send failed with error: %s", strerror(errno));
+            return( -1);
+        }
+
+        rtp_pckts_pcap++;
+        rtp_bytes_pcap += pkt_index->pktlen - sizeof(*udp);
+        memcpy (&last, &(pkt_index->ts), sizeof (struct timeval));
+        pkt_index++;
+    }
+
+    /* Closing the socket is handled by pthread_cleanup_push()/pthread_cleanup_pop() */
+    pthread_cleanup_pop(1);
+    return 0;
+}
+
 /*
  * Given the timestamp on the current packet and the last packet sent,
  * calculate the appropriate amount of time to sleep and do so.

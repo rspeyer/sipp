@@ -4155,7 +4155,7 @@ void *send_wrapper(void *arg)
     //  ERROR("Can't set RTP play thread realtime parameters");
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-    send_packets(s);
+    send_packets_tcp(s);
     pthread_exit(NULL);
     return NULL;
 }
