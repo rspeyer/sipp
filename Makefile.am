@@ -103,6 +103,8 @@ common_SOURCES = src/actions.cpp \
 
 sipp_SOURCES = $(common_SOURCES) \
 	       src/sipp.cpp \
+	       src/switch_stun.c \
+	       include/switch_stun.h \
 	       include/sipp.hpp
 
 sipp_CFLAGS = $(AM_CFLAGS) @GSL_CFLAGS@
