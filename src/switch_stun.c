@@ -39,36 +39,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SWITCH_DECLARE(x) x
-typedef size_t switch_size_t;
-
-typedef enum {
-	SWITCH_STATUS_SUCCESS,
-	SWITCH_STATUS_FALSE,
-	SWITCH_STATUS_TIMEOUT,
-	SWITCH_STATUS_RESTART,
-	SWITCH_STATUS_INTR,
-	SWITCH_STATUS_NOTIMPL,
-	SWITCH_STATUS_MEMERR,
-	SWITCH_STATUS_NOOP,
-	SWITCH_STATUS_RESAMPLE,
-	SWITCH_STATUS_GENERR,
-	SWITCH_STATUS_INUSE,
-	SWITCH_STATUS_BREAK,
-	SWITCH_STATUS_SOCKERR,
-	SWITCH_STATUS_MORE_DATA,
-	SWITCH_STATUS_NOTFOUND,
-	SWITCH_STATUS_UNLOAD,
-	SWITCH_STATUS_NOUNLOAD,
-	SWITCH_STATUS_IGNORE,
-	SWITCH_STATUS_TOO_SMALL,
-	SWITCH_STATUS_FOUND,
-	SWITCH_STATUS_CONTINUE,
-	SWITCH_STATUS_TERM,
-	SWITCH_STATUS_NOT_INITALIZED,
-	SWITCH_STATUS_INVALID_PACKET,
-	SWITCH_STATUS_BAD_ARG
-} switch_status_t;
+#include <switch_stun.h>
+#include <openssl/sha.h>
+#include <openssl/hmac.h>
 
 #define SWITCH_CHANNEL_LOG 1
 #define SWITCH_LOG_ERROR 5
@@ -79,10 +52,6 @@ switch_log_printf(int log, int severity, const char * fmt, ...)
 	vprintf(fmt, ap);
 	va_end(ap);
 }
-
-#include <switch_stun.h>
-#include <openssl/sha.h>
-#include <openssl/hmac.h>
 
 //#define DEBUG_STUN_PARSE
 

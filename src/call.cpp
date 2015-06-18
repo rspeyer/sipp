@@ -239,12 +239,30 @@ uint16_t get_remote_port_media(const char *msg, int pattype)
     return atoi(number);
 }
 
+void get_value(const char *pattern, char *msg, char *out, size_t out_size)
+{
+  char * begin = strstr(msg, pattern);
+
+  if (!begin) {
+    ERROR("Value %s not found\n", pattern);
+    memset(out, 0, out_size);
+  }
+
+  memcpy(out, begin + strlen(pattern), out_size);
+}
+
 /*
  * IPv{4,6} compliant
  */
 void call::get_remote_media_addr(char *msg)
 {
     uint16_t video_port, audio_port;
+
+    get_value("a=ice-ufrag:", msg, play_args_a.remote_ufrag, sizeof(play_args_a.remote_ufrag));
+    get_value("a=ice-ufrag:", last_send_msg, play_args_a.local_ufrag, sizeof(play_args_a.local_ufrag));
+    get_value("a=ice-pwd:", msg, play_args_a.remote_password, sizeof(play_args_a.remote_password));
+    get_value("a=ice-pwd:", last_send_msg, play_args_a.local_password, sizeof(play_args_a.local_password));
+
     if (media_ip_is_ipv6) {
         struct in6_addr ip_media;
         if (get_remote_ipv6_media(msg, &ip_media)) {

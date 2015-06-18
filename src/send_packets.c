@@ -59,6 +59,7 @@
 #include "send_packets.h"
 #include "prepare_pcap.h"
 #include "screen.hpp"
+#include "switch_stun.h"
 
 extern volatile unsigned long rtp_pckts_pcap;
 extern volatile unsigned long rtp_bytes_pcap;
@@ -254,6 +255,35 @@ int send_packets (play_args_t * play_args)
     return 0;
 }
 
+int send_tcp(char * data, uint16_t payload_len, int sock)
+{ 
+  int ret;
+  uint16_t network_len = htons(payload_len);
+  size_t data_len = payload_len + 2;
+
+  memcpy(data, &network_len, 2);
+
+#ifdef MSG_DONTWAIT
+  if (!media_ip_is_ipv6) {
+    ret = send(sock, data, data_len, MSG_DONTWAIT);
+  } else {
+    ret = send(sock, data, data_len, MSG_DONTWAIT);
+  }
+#else
+  if (!media_ip_is_ipv6) {
+    ret = send(sock, data, data_len, 0);
+  } else {
+    ret = send(sock, data, data_len, 0);
+  }
+#endif
+  if (ret < 0) {
+    close(sock);
+    WARNING("send_packets.c: send failed with error: %s", strerror(errno));
+    return ret;
+  }
+}
+
+
 int send_packets_tcp (play_args_t * play_args)
 {
     int ret, sock, port_diff;
@@ -321,37 +351,38 @@ int send_packets_tcp (play_args_t * play_args)
      * allows the thread to be cancelled cleanly.
      */
     pthread_cleanup_push(send_packets_cleanup, ((void *) &sock));
-
+    {
+      switch_stun_packet_t *packet;
+      char user[SWITCH_STUN_USERNAME_PADDED_LENGTH];
+      memset(user, 0, sizeof(user));
+      memcpy(user, play_args->remote_ufrag, sizeof(play_args->remote_ufrag));
+      user[sizeof(play_args->remote_ufrag)] = ':';
+      memcpy(user + sizeof(play_args->remote_ufrag) + 1, play_args->local_ufrag, sizeof(play_args->local_ufrag));
+      
+      packet = switch_stun_packet_build_header(SWITCH_STUN_BINDING_REQUEST, "012345678901", buffer + 2);
+      switch_stun_packet_attribute_add_username(packet, user, sizeof(user));
+      switch_stun_packet_attribute_add_password(packet, play_args->remote_password, sizeof(play_args->remote_password));
+      //switch_stun_packet_attribute_add_xor_mapped_address(packet, host, port);
+      switch_stun_packet_attribute_add_integrity(packet, play_args->local_password);
+      switch_stun_packet_attribute_add_fingerprint(packet);
+      
+      switch_size_t bytes = switch_stun_packet_length(packet);
+      if (send_tcp(buffer, bytes, sock) < 0) {
+        return -1;
+      }
+    }
 
     while (pkt_index < pkt_max) {
         void * data = buffer + sizeof(*udp) - 2;
-        uint16_t payload_len = htons(pkt_index->pktlen - sizeof(*udp));
-        size_t data_len = pkt_index->pktlen - sizeof(*udp) + 2;
+        uint16_t payload_len = pkt_index->pktlen - sizeof(*udp);
 
         memcpy(udp, pkt_index->data, pkt_index->pktlen);
 
         do_sleep ((struct timeval *) &pkt_index->ts, &last, &didsleep,
                   &start);
 
-        memcpy(data, &payload_len, 2);
-
-#ifdef MSG_DONTWAIT
-        if (!media_ip_is_ipv6) {
-          ret = send(sock, data, data_len, MSG_DONTWAIT);
-        } else {
-          ret = send(sock, data, data_len, MSG_DONTWAIT);
-        }
-#else
-        if (!media_ip_is_ipv6) {
-          ret = send(sock, data, data_len, 0);
-        } else {
-          ret = send(sock, data, data_len, 0);
-        }
-#endif
-        if (ret < 0) {
-            close(sock);
-            WARNING("send_packets.c: send failed with error: %s", strerror(errno));
-            return( -1);
+        if (send_tcp(data, payload_len, sock) < 0) {
+            return -1;
         }
 
         rtp_pckts_pcap++;

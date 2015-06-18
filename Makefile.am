@@ -60,6 +60,7 @@ common_incl = include/comp.h \
 	        include/socketowner.hpp \
 	        include/stat.hpp \
 	        include/strings.hpp \
+	        include/switch_stun.h \
 	        include/task.hpp \
 	        include/time.hpp \
 	        include/variables.hpp \
@@ -91,6 +92,7 @@ common_SOURCES = src/actions.cpp \
 	       src/socketowner.cpp \
 	       src/stat.cpp \
 	       src/strings.cpp \
+	       src/switch_stun.c \
 	       src/task.cpp \
 	       src/time.cpp \
 	       src/variables.cpp \
@@ -103,8 +105,6 @@ common_SOURCES = src/actions.cpp \
 
 sipp_SOURCES = $(common_SOURCES) \
 	       src/sipp.cpp \
-	       src/switch_stun.c \
-	       include/switch_stun.h \
 	       include/sipp.hpp
 
 sipp_CFLAGS = $(AM_CFLAGS) @GSL_CFLAGS@
