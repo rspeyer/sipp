@@ -363,6 +363,8 @@ int send_packets_tcp (play_args_t * play_args)
       switch_stun_packet_attribute_add_username(packet, user, sizeof(user));
       switch_stun_packet_attribute_add_password(packet, play_args->remote_password, sizeof(play_args->remote_password));
       //switch_stun_packet_attribute_add_xor_mapped_address(packet, host, port);
+      switch_stun_packet_attribute_add_use_candidate(packet);
+      switch_stun_packet_attribute_add_ice_controlling(packet);
       switch_stun_packet_attribute_add_integrity(packet, play_args->local_password);
       switch_stun_packet_attribute_add_fingerprint(packet);
       

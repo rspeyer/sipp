@@ -3816,10 +3816,15 @@ call::T_ActionResult call::executeAction(char * msg, message *curmsg)
             }
 #ifdef PCAPPLAY
         } else if ((currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO) ||
+                   (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO_TCP) ||
                    (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_VIDEO)) {
             play_args_t *play_args = 0;
             if (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO) {
                 play_args = &(this->play_args_a);
+                play_args->tcp = false;
+            } else if (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO_TCP) {
+                play_args = &(this->play_args_a);
+                play_args->tcp = true;
             } else if (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_VIDEO) {
                 play_args = &(this->play_args_v);
             }
@@ -4173,7 +4178,11 @@ void *send_wrapper(void *arg)
     //  ERROR("Can't set RTP play thread realtime parameters");
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-    send_packets_tcp(s);
+    if (s->tcp) {
+      send_packets_tcp(s);
+    } else {
+      send_packets(s);
+    }
     pthread_exit(NULL);
     return NULL;
 }

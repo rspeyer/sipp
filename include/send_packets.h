@@ -119,6 +119,7 @@ typedef struct {
   char local_ufrag [SWITCH_STUN_UFRAG_LENGTH];
   char remote_password[SWITCH_STUN_PASSWORD_LENGTH];
   char local_password [SWITCH_STUN_PASSWORD_LENGTH];
+  int tcp;
 } play_args_t;
 
 #ifdef __cplusplus
