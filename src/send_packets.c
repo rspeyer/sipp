@@ -393,6 +393,12 @@ int send_packets_tcp (play_args_t * play_args)
         pkt_index++;
     }
 
+    // Sleep for a second before closing the socket so response can be sent
+    struct timespec sleep;
+    sleep.tv_sec = 1;
+    sleep.tv_nsec = 0;
+    while ((nanosleep (&sleep, &sleep) == -1) && (errno == -EINTR));
+
     /* Closing the socket is handled by pthread_cleanup_push()/pthread_cleanup_pop() */
     pthread_cleanup_pop(1);
     return 0;
