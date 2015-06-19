@@ -59,6 +59,7 @@
 #include "send_packets.h"
 #include "prepare_pcap.h"
 #include "screen.hpp"
+#include "switch_stun.h"
 
 extern volatile unsigned long rtp_pckts_pcap;
 extern volatile unsigned long rtp_bytes_pcap;
@@ -248,6 +249,155 @@ int send_packets (play_args_t * play_args)
         memcpy (&last, &(pkt_index->ts), sizeof (struct timeval));
         pkt_index++;
     }
+
+    /* Closing the socket is handled by pthread_cleanup_push()/pthread_cleanup_pop() */
+    pthread_cleanup_pop(1);
+    return 0;
+}
+
+int send_tcp(char * data, uint16_t payload_len, int sock)
+{ 
+  int ret;
+  uint16_t network_len = htons(payload_len);
+  size_t data_len = payload_len + 2;
+
+  memcpy(data, &network_len, 2);
+
+#ifdef MSG_DONTWAIT
+  if (!media_ip_is_ipv6) {
+    ret = send(sock, data, data_len, MSG_DONTWAIT);
+  } else {
+    ret = send(sock, data, data_len, MSG_DONTWAIT);
+  }
+#else
+  if (!media_ip_is_ipv6) {
+    ret = send(sock, data, data_len, 0);
+  } else {
+    ret = send(sock, data, data_len, 0);
+  }
+#endif
+  if (ret < 0) {
+    close(sock);
+    WARNING("send_packets.c: send failed with error: %s", strerror(errno));
+    return ret;
+  }
+}
+
+
+int send_packets_tcp (play_args_t * play_args)
+{
+    int ret, sock, port_diff;
+    pcap_pkt *pkt_index, *pkt_max;
+    struct timeval didsleep = { 0, 0 };
+    struct timeval start = { 0, 0 };
+    struct timeval last = { 0, 0 };
+    pcap_pkts *pkts = play_args->pcap;
+    /* to and from are pointers in case play_args (call sticky) gets modified! */
+    struct sockaddr_storage *to = &(play_args->to);
+    struct sockaddr_storage *from = &(play_args->from);
+    struct udphdr *udp;
+    struct sockaddr_in6 to6, from6;
+    char buffer[PCAP_MAXPACKET];
+    int temp_sum;
+    int len;
+
+#ifndef MSG_DONTWAIT
+    int fd_flags;
+#endif
+
+    if (media_ip_is_ipv6) {
+        sock = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
+        if (sock < 0) {
+            ERROR("Can't create IPv6 socket (need to run as root?): %s", strerror(errno));
+        }
+        len = sizeof(struct sockaddr_in6);
+        ((struct sockaddr_in6 *)(void *) to )->sin6_port = htons(8443);
+    } else {
+        sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+        len = sizeof(struct sockaddr_in);
+        ((struct sockaddr_in *)(void *) to )->sin_port = htons(8443);
+        if (sock < 0) {
+            ERROR("Can't create IPv4 socket (need to run as root?): %s", strerror(errno));
+            return ret;
+        }
+    }
+
+    if (ret = connect(sock, (const struct sockaddr *)(void *)to, len) < 0) {
+        ERROR("Can't connect TCP socket");
+        return ret;
+    }
+
+#ifndef MSG_DONTWAIT
+    fd_flags = fcntl(sock, F_GETFL , NULL);
+    fd_flags |= O_NONBLOCK;
+    fcntl(sock, F_SETFL , fd_flags);
+#endif
+    udp = (struct udphdr *)buffer;
+
+    pkt_index = pkts->pkts;
+    pkt_max = pkts->max;
+
+    if (media_ip_is_ipv6) {
+        memset(&to6, 0, sizeof(to6));
+        memset(&from6, 0, sizeof(from6));
+        to6.sin6_family = AF_INET6;
+        from6.sin6_family = AF_INET6;
+        memcpy(&(to6.sin6_addr.s6_addr), &(((struct sockaddr_in6 *)(void *) to)->sin6_addr.s6_addr), sizeof(to6.sin6_addr.s6_addr));
+        memcpy(&(from6.sin6_addr.s6_addr), &(((struct sockaddr_in6 *)(void *) from)->sin6_addr.s6_addr), sizeof(from6.sin6_addr.s6_addr));
+    }
+
+
+    /* Ensure the sender socket is closed when the thread exits - this
+     * allows the thread to be cancelled cleanly.
+     */
+    pthread_cleanup_push(send_packets_cleanup, ((void *) &sock));
+    {
+      switch_stun_packet_t *packet;
+      char user[SWITCH_STUN_USERNAME_PADDED_LENGTH];
+      memset(user, 0, sizeof(user));
+      memcpy(user, play_args->remote_ufrag, sizeof(play_args->remote_ufrag));
+      user[sizeof(play_args->remote_ufrag)] = ':';
+      memcpy(user + sizeof(play_args->remote_ufrag) + 1, play_args->local_ufrag, sizeof(play_args->local_ufrag));
+      
+      packet = switch_stun_packet_build_header(SWITCH_STUN_BINDING_REQUEST, "012345678901", buffer + 2);
+      switch_stun_packet_attribute_add_username(packet, user, sizeof(user));
+      switch_stun_packet_attribute_add_password(packet, play_args->remote_password, sizeof(play_args->remote_password));
+      //switch_stun_packet_attribute_add_xor_mapped_address(packet, host, port);
+      switch_stun_packet_attribute_add_use_candidate(packet);
+      switch_stun_packet_attribute_add_ice_controlling(packet);
+      switch_stun_packet_attribute_add_integrity(packet, play_args->local_password);
+      switch_stun_packet_attribute_add_fingerprint(packet);
+      
+      switch_size_t bytes = switch_stun_packet_length(packet);
+      if (send_tcp(buffer, bytes, sock) < 0) {
+        return -1;
+      }
+    }
+
+    while (pkt_index < pkt_max) {
+        void * data = buffer + sizeof(*udp) - 2;
+        uint16_t payload_len = pkt_index->pktlen - sizeof(*udp);
+
+        memcpy(udp, pkt_index->data, pkt_index->pktlen);
+
+        do_sleep ((struct timeval *) &pkt_index->ts, &last, &didsleep,
+                  &start);
+
+        if (send_tcp(data, payload_len, sock) < 0) {
+            return -1;
+        }
+
+        rtp_pckts_pcap++;
+        rtp_bytes_pcap += pkt_index->pktlen - sizeof(*udp);
+        memcpy (&last, &(pkt_index->ts), sizeof (struct timeval));
+        pkt_index++;
+    }
+
+    // Sleep for a second before closing the socket so response can be sent
+    struct timespec sleep;
+    sleep.tv_sec = 1;
+    sleep.tv_nsec = 0;
+    while ((nanosleep (&sleep, &sleep) == -1) && (errno == -EINTR));
 
     /* Closing the socket is handled by pthread_cleanup_push()/pthread_cleanup_pop() */
     pthread_cleanup_pop(1);

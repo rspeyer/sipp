@@ -112,18 +112,19 @@ am__sipp_SOURCES_DIST = src/actions.cpp src/auth.cpp src/comp.c \
 	src/call_generation_task.cpp src/reporttask.cpp src/rijndael.c \
 	src/scenario.cpp src/sip_parser.cpp src/screen.cpp \
 	src/socket.cpp src/socketowner.cpp src/stat.cpp \
-	src/strings.cpp src/task.cpp src/time.cpp src/variables.cpp \
-	src/watchdog.cpp src/xp_parser.c include/comp.h \
-	include/infile.hpp include/listener.hpp include/logger.hpp \
-	include/md5.h include/message.hpp include/milenage.h \
-	include/call_generation_task.hpp include/reporttask.hpp \
-	include/rijndael.h include/scenario.hpp include/sip_parser.hpp \
-	include/screen.hpp include/socket.hpp include/socketowner.hpp \
-	include/stat.hpp include/strings.hpp include/task.hpp \
-	include/time.hpp include/variables.hpp include/watchdog.hpp \
-	include/xp_parser.h include/actions.hpp include/call.hpp \
-	include/auth.hpp include/deadcall.hpp include/sslcommon.h \
-	src/sslinit.c src/sslthreadsafe.c include/prepare_pcap.h \
+	src/strings.cpp src/switch_stun.c src/task.cpp src/time.cpp \
+	src/variables.cpp src/watchdog.cpp src/xp_parser.c \
+	include/comp.h include/infile.hpp include/listener.hpp \
+	include/logger.hpp include/md5.h include/message.hpp \
+	include/milenage.h include/call_generation_task.hpp \
+	include/reporttask.hpp include/rijndael.h include/scenario.hpp \
+	include/sip_parser.hpp include/screen.hpp include/socket.hpp \
+	include/socketowner.hpp include/stat.hpp include/strings.hpp \
+	include/switch_stun.h include/task.hpp include/time.hpp \
+	include/variables.hpp include/watchdog.hpp include/xp_parser.h \
+	include/actions.hpp include/call.hpp include/auth.hpp \
+	include/deadcall.hpp include/sslcommon.h src/sslinit.c \
+	src/sslthreadsafe.c include/prepare_pcap.h \
 	include/send_packets.h src/prepare_pcap.c src/send_packets.c \
 	src/rtpstream.cpp include/rtpstream.hpp src/sipp.cpp \
 	include/sipp.hpp
@@ -147,11 +148,11 @@ am__objects_5 = src/sipp-actions.$(OBJEXT) src/sipp-auth.$(OBJEXT) \
 	src/sipp-scenario.$(OBJEXT) src/sipp-sip_parser.$(OBJEXT) \
 	src/sipp-screen.$(OBJEXT) src/sipp-socket.$(OBJEXT) \
 	src/sipp-socketowner.$(OBJEXT) src/sipp-stat.$(OBJEXT) \
-	src/sipp-strings.$(OBJEXT) src/sipp-task.$(OBJEXT) \
-	src/sipp-time.$(OBJEXT) src/sipp-variables.$(OBJEXT) \
-	src/sipp-watchdog.$(OBJEXT) src/sipp-xp_parser.$(OBJEXT) \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
-	$(am__objects_4)
+	src/sipp-strings.$(OBJEXT) src/sipp-switch_stun.$(OBJEXT) \
+	src/sipp-task.$(OBJEXT) src/sipp-time.$(OBJEXT) \
+	src/sipp-variables.$(OBJEXT) src/sipp-watchdog.$(OBJEXT) \
+	src/sipp-xp_parser.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
+	$(am__objects_3) $(am__objects_4)
 am_sipp_OBJECTS = $(am__objects_5) src/sipp-sipp.$(OBJEXT)
 sipp_OBJECTS = $(am_sipp_OBJECTS)
 sipp_DEPENDENCIES = @LIBOBJS@
@@ -163,18 +164,19 @@ am__sipp_unittest_SOURCES_DIST = src/actions.cpp src/auth.cpp \
 	src/milenage.c src/call_generation_task.cpp src/reporttask.cpp \
 	src/rijndael.c src/scenario.cpp src/sip_parser.cpp \
 	src/screen.cpp src/socket.cpp src/socketowner.cpp src/stat.cpp \
-	src/strings.cpp src/task.cpp src/time.cpp src/variables.cpp \
-	src/watchdog.cpp src/xp_parser.c include/comp.h \
-	include/infile.hpp include/listener.hpp include/logger.hpp \
-	include/md5.h include/message.hpp include/milenage.h \
-	include/call_generation_task.hpp include/reporttask.hpp \
-	include/rijndael.h include/scenario.hpp include/sip_parser.hpp \
-	include/screen.hpp include/socket.hpp include/socketowner.hpp \
-	include/stat.hpp include/strings.hpp include/task.hpp \
-	include/time.hpp include/variables.hpp include/watchdog.hpp \
-	include/xp_parser.h include/actions.hpp include/call.hpp \
-	include/auth.hpp include/deadcall.hpp include/sslcommon.h \
-	src/sslinit.c src/sslthreadsafe.c include/prepare_pcap.h \
+	src/strings.cpp src/switch_stun.c src/task.cpp src/time.cpp \
+	src/variables.cpp src/watchdog.cpp src/xp_parser.c \
+	include/comp.h include/infile.hpp include/listener.hpp \
+	include/logger.hpp include/md5.h include/message.hpp \
+	include/milenage.h include/call_generation_task.hpp \
+	include/reporttask.hpp include/rijndael.h include/scenario.hpp \
+	include/sip_parser.hpp include/screen.hpp include/socket.hpp \
+	include/socketowner.hpp include/stat.hpp include/strings.hpp \
+	include/switch_stun.h include/task.hpp include/time.hpp \
+	include/variables.hpp include/watchdog.hpp include/xp_parser.h \
+	include/actions.hpp include/call.hpp include/auth.hpp \
+	include/deadcall.hpp include/sslcommon.h src/sslinit.c \
+	src/sslthreadsafe.c include/prepare_pcap.h \
 	include/send_packets.h src/prepare_pcap.c src/send_packets.c \
 	src/rtpstream.cpp include/rtpstream.hpp src/sipp_unittest.cpp
 @HAVE_OPENSSL_TRUE@am__objects_6 = $(am__objects_1) \
@@ -205,6 +207,7 @@ am__objects_9 = src/sipp_unittest-actions.$(OBJEXT) \
 	src/sipp_unittest-socketowner.$(OBJEXT) \
 	src/sipp_unittest-stat.$(OBJEXT) \
 	src/sipp_unittest-strings.$(OBJEXT) \
+	src/sipp_unittest-switch_stun.$(OBJEXT) \
 	src/sipp_unittest-task.$(OBJEXT) \
 	src/sipp_unittest-time.$(OBJEXT) \
 	src/sipp_unittest-variables.$(OBJEXT) \
@@ -652,6 +655,7 @@ common_incl = include/comp.h \
 	        include/socketowner.hpp \
 	        include/stat.hpp \
 	        include/strings.hpp \
+	        include/switch_stun.h \
 	        include/task.hpp \
 	        include/time.hpp \
 	        include/variables.hpp \
@@ -683,6 +687,7 @@ common_SOURCES = src/actions.cpp \
 	       src/socketowner.cpp \
 	       src/stat.cpp \
 	       src/strings.cpp \
+	       src/switch_stun.c \
 	       src/task.cpp \
 	       src/time.cpp \
 	       src/variables.cpp \
@@ -850,6 +855,8 @@ src/sipp-stat.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/sipp-strings.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/sipp-switch_stun.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/sipp-task.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/sipp-time.$(OBJEXT): src/$(am__dirstamp) \
@@ -918,6 +925,8 @@ src/sipp_unittest-stat.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/sipp_unittest-strings.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/sipp_unittest-switch_stun.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/sipp_unittest-task.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/sipp_unittest-time.$(OBJEXT): src/$(am__dirstamp) \
@@ -979,6 +988,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-sslthreadsafe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-stat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-strings.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-switch_stun.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-task.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp-variables.Po@am__quote@
@@ -1011,6 +1021,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp_unittest-sslthreadsafe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp_unittest-stat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp_unittest-strings.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp_unittest-switch_stun.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp_unittest-task.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp_unittest-time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sipp_unittest-variables.Po@am__quote@
@@ -1088,6 +1099,20 @@ src/sipp-rijndael.obj: src/rijndael.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/rijndael.c' object='src/sipp-rijndael.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -c -o src/sipp-rijndael.obj `if test -f 'src/rijndael.c'; then $(CYGPATH_W) 'src/rijndael.c'; else $(CYGPATH_W) '$(srcdir)/src/rijndael.c'; fi`
+
+src/sipp-switch_stun.o: src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -MT src/sipp-switch_stun.o -MD -MP -MF src/$(DEPDIR)/sipp-switch_stun.Tpo -c -o src/sipp-switch_stun.o `test -f 'src/switch_stun.c' || echo '$(srcdir)/'`src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/sipp-switch_stun.Tpo src/$(DEPDIR)/sipp-switch_stun.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/switch_stun.c' object='src/sipp-switch_stun.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -c -o src/sipp-switch_stun.o `test -f 'src/switch_stun.c' || echo '$(srcdir)/'`src/switch_stun.c
+
+src/sipp-switch_stun.obj: src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -MT src/sipp-switch_stun.obj -MD -MP -MF src/$(DEPDIR)/sipp-switch_stun.Tpo -c -o src/sipp-switch_stun.obj `if test -f 'src/switch_stun.c'; then $(CYGPATH_W) 'src/switch_stun.c'; else $(CYGPATH_W) '$(srcdir)/src/switch_stun.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/sipp-switch_stun.Tpo src/$(DEPDIR)/sipp-switch_stun.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/switch_stun.c' object='src/sipp-switch_stun.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -c -o src/sipp-switch_stun.obj `if test -f 'src/switch_stun.c'; then $(CYGPATH_W) 'src/switch_stun.c'; else $(CYGPATH_W) '$(srcdir)/src/switch_stun.c'; fi`
 
 src/sipp-xp_parser.o: src/xp_parser.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_CFLAGS) $(CFLAGS) -MT src/sipp-xp_parser.o -MD -MP -MF src/$(DEPDIR)/sipp-xp_parser.Tpo -c -o src/sipp-xp_parser.o `test -f 'src/xp_parser.c' || echo '$(srcdir)/'`src/xp_parser.c
@@ -1214,6 +1239,20 @@ src/sipp_unittest-rijndael.obj: src/rijndael.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/rijndael.c' object='src/sipp_unittest-rijndael.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_unittest_CFLAGS) $(CFLAGS) -c -o src/sipp_unittest-rijndael.obj `if test -f 'src/rijndael.c'; then $(CYGPATH_W) 'src/rijndael.c'; else $(CYGPATH_W) '$(srcdir)/src/rijndael.c'; fi`
+
+src/sipp_unittest-switch_stun.o: src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_unittest_CFLAGS) $(CFLAGS) -MT src/sipp_unittest-switch_stun.o -MD -MP -MF src/$(DEPDIR)/sipp_unittest-switch_stun.Tpo -c -o src/sipp_unittest-switch_stun.o `test -f 'src/switch_stun.c' || echo '$(srcdir)/'`src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/sipp_unittest-switch_stun.Tpo src/$(DEPDIR)/sipp_unittest-switch_stun.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/switch_stun.c' object='src/sipp_unittest-switch_stun.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_unittest_CFLAGS) $(CFLAGS) -c -o src/sipp_unittest-switch_stun.o `test -f 'src/switch_stun.c' || echo '$(srcdir)/'`src/switch_stun.c
+
+src/sipp_unittest-switch_stun.obj: src/switch_stun.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_unittest_CFLAGS) $(CFLAGS) -MT src/sipp_unittest-switch_stun.obj -MD -MP -MF src/$(DEPDIR)/sipp_unittest-switch_stun.Tpo -c -o src/sipp_unittest-switch_stun.obj `if test -f 'src/switch_stun.c'; then $(CYGPATH_W) 'src/switch_stun.c'; else $(CYGPATH_W) '$(srcdir)/src/switch_stun.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/sipp_unittest-switch_stun.Tpo src/$(DEPDIR)/sipp_unittest-switch_stun.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/switch_stun.c' object='src/sipp_unittest-switch_stun.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_unittest_CFLAGS) $(CFLAGS) -c -o src/sipp_unittest-switch_stun.obj `if test -f 'src/switch_stun.c'; then $(CYGPATH_W) 'src/switch_stun.c'; else $(CYGPATH_W) '$(srcdir)/src/switch_stun.c'; fi`
 
 src/sipp_unittest-xp_parser.o: src/xp_parser.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(sipp_unittest_CFLAGS) $(CFLAGS) -MT src/sipp_unittest-xp_parser.o -MD -MP -MF src/$(DEPDIR)/sipp_unittest-xp_parser.Tpo -c -o src/sipp_unittest-xp_parser.o `test -f 'src/xp_parser.c' || echo '$(srcdir)/'`src/xp_parser.c

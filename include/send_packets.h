@@ -41,6 +41,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
+#include "switch_stun.h"
 #include "prepare_pcap.h"
 
 inline void timerdiv (struct timeval *tvp, float div);
@@ -114,6 +115,11 @@ typedef struct {
     /* Used in send_packets thread */
     struct sockaddr_storage to;
     struct sockaddr_storage from;
+  char remote_ufrag[SWITCH_STUN_UFRAG_LENGTH];
+  char local_ufrag [SWITCH_STUN_UFRAG_LENGTH];
+  char remote_password[SWITCH_STUN_PASSWORD_LENGTH];
+  char local_password [SWITCH_STUN_PASSWORD_LENGTH];
+  int tcp;
 } play_args_t;
 
 #ifdef __cplusplus
@@ -122,6 +128,7 @@ extern "C"
 #endif
     int parse_play_args (char *, pcap_pkts *);
     int send_packets (play_args_t *);
+    int send_packets_tcp (play_args_t *);
 #ifdef __cplusplus
 }
 #endif

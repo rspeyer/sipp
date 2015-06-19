@@ -71,6 +71,7 @@ public:
         E_AT_CLOSE_CON,
 #ifdef PCAPPLAY
         E_AT_PLAY_PCAP_AUDIO,
+        E_AT_PLAY_PCAP_AUDIO_TCP,
         E_AT_PLAY_PCAP_VIDEO,
 #endif
 #ifdef RTP_STREAM

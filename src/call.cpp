@@ -239,12 +239,30 @@ uint16_t get_remote_port_media(const char *msg, int pattype)
     return atoi(number);
 }
 
+void get_value(const char *pattern, char *msg, char *out, size_t out_size)
+{
+  char * begin = strstr(msg, pattern);
+
+  if (!begin) {
+    ERROR("Value %s not found\n", pattern);
+    memset(out, 0, out_size);
+  }
+
+  memcpy(out, begin + strlen(pattern), out_size);
+}
+
 /*
  * IPv{4,6} compliant
  */
 void call::get_remote_media_addr(char *msg)
 {
     uint16_t video_port, audio_port;
+
+    get_value("a=ice-ufrag:", msg, play_args_a.remote_ufrag, sizeof(play_args_a.remote_ufrag));
+    get_value("a=ice-ufrag:", last_send_msg, play_args_a.local_ufrag, sizeof(play_args_a.local_ufrag));
+    get_value("a=ice-pwd:", msg, play_args_a.remote_password, sizeof(play_args_a.remote_password));
+    get_value("a=ice-pwd:", last_send_msg, play_args_a.local_password, sizeof(play_args_a.local_password));
+
     if (media_ip_is_ipv6) {
         struct in6_addr ip_media;
         if (get_remote_ipv6_media(msg, &ip_media)) {
@@ -3798,10 +3816,15 @@ call::T_ActionResult call::executeAction(char * msg, message *curmsg)
             }
 #ifdef PCAPPLAY
         } else if ((currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO) ||
+                   (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO_TCP) ||
                    (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_VIDEO)) {
             play_args_t *play_args = 0;
             if (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO) {
                 play_args = &(this->play_args_a);
+                play_args->tcp = false;
+            } else if (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_AUDIO_TCP) {
+                play_args = &(this->play_args_a);
+                play_args->tcp = true;
             } else if (currentAction->getActionType() == CAction::E_AT_PLAY_PCAP_VIDEO) {
                 play_args = &(this->play_args_v);
             }
@@ -4155,7 +4178,11 @@ void *send_wrapper(void *arg)
     //  ERROR("Can't set RTP play thread realtime parameters");
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-    send_packets(s);
+    if (s->tcp) {
+      send_packets_tcp(s);
+    } else {
+      send_packets(s);
+    }
     pthread_exit(NULL);
     return NULL;
 }
